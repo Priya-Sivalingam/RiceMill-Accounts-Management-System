@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Box, Typography, Card, CardContent, Grid, TextField,
   Button, CircularProgress, Alert, Chip, Collapse,
@@ -23,19 +23,34 @@ const TXN_LABELS = {
 
 // ── Single account row with drilldown ────────────────────────────────────
 function AccountRow({ accountId, code, name, balance, category, asOf }) {
-  const [open,    setOpen]    = useState(false);
+  const [open, setOpen] = useState(false);
+
+  // ✅ Fix 1: starts as [] not null
   const [entries, setEntries] = useState([]);
+
   const [loading, setLoading] = useState(false);
 
+  // ✅ Fix 3: track whether fetched already (no refetch on later clicks)
+  const fetchedRef = useRef(false);
+
   const toggle = async () => {
-    if (entries !== null) { setOpen(o => !o); return; }
+    // If already fetched once, just toggle open/close
+    if (fetchedRef.current) {
+      setOpen(o => !o);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await getAccountBalance(accountId, asOf);
       setEntries(res.data?.entries || []);
+    } catch {
+      setEntries([]);
+    } finally {
+      fetchedRef.current = true;
       setOpen(true);
-    } catch { setEntries([]); setOpen(true); }
-    finally { setLoading(false); }
+      setLoading(false);
+    }
   };
 
   return (
@@ -86,7 +101,8 @@ function AccountRow({ accountId, code, name, balance, category, asOf }) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {entries.map((e, i) => (
+                  {/* ✅ Fix 2: extra safety guard */}
+                  {(entries || []).map((e, i) => (
                     <TableRow key={i} hover sx={{ '&:last-child td': { borderBottom: 0 } }}>
                       <TableCell sx={{ fontSize: 11, py: 0.4 }}>{e.txnDate}</TableCell>
                       <TableCell sx={{ fontSize: 11, py: 0.4, color: '#1a5276', fontWeight: '500' }}>
@@ -97,14 +113,21 @@ function AccountRow({ accountId, code, name, balance, category, asOf }) {
                       </TableCell>
                       <TableCell sx={{ fontSize: 11, py: 0.4 }}>{e.party}</TableCell>
                       <TableCell sx={{ fontSize: 11, py: 0.4, color: 'text.secondary' }}>
-                        {e.narration}
+                        <div style={{ fontWeight: 500, color: '#1a5276' }}>{e.journalDesc || e.narration}</div>
+                        {e.journalDesc && e.narration && e.journalDesc !== e.narration && (
+                          <div style={{ fontSize: 9, color: '#888' }}>{e.narration}</div>
+                        )}
                       </TableCell>
-                      <TableCell sx={{ fontSize: 11, py: 0.4, textAlign: 'right',
-                                       color: '#27ae60', fontWeight: e.drAmount > 0 ? 'bold' : 'normal' }}>
+                      <TableCell sx={{
+                        fontSize: 11, py: 0.4, textAlign: 'right',
+                        color: '#27ae60', fontWeight: e.drAmount > 0 ? 'bold' : 'normal'
+                      }}>
                         {e.drAmount > 0 ? fmt(e.drAmount) : '—'}
                       </TableCell>
-                      <TableCell sx={{ fontSize: 11, py: 0.4, textAlign: 'right',
-                                       color: '#e74c3c', fontWeight: e.crAmount > 0 ? 'bold' : 'normal' }}>
+                      <TableCell sx={{
+                        fontSize: 11, py: 0.4, textAlign: 'right',
+                        color: '#e74c3c', fontWeight: e.crAmount > 0 ? 'bold' : 'normal'
+                      }}>
                         {e.crAmount > 0 ? fmt(e.crAmount) : '—'}
                       </TableCell>
                     </TableRow>
@@ -113,13 +136,11 @@ function AccountRow({ accountId, code, name, balance, category, asOf }) {
                   {/* Net balance footer row */}
                   <TableRow sx={{ bgcolor: '#f0f4ff' }}>
                     <TableCell colSpan={5}
-                      sx={{ fontSize: 11, fontWeight: 'bold', py: 0.5,
-                            borderTop: '1px solid #c5cfe8' }}>
+                      sx={{ fontSize: 11, fontWeight: 'bold', py: 0.5, borderTop: '1px solid #c5cfe8' }}>
                       Net Balance
                     </TableCell>
                     <TableCell colSpan={2}
-                      sx={{ fontSize: 11, fontWeight: 'bold', py: 0.5,
-                            textAlign: 'right', borderTop: '1px solid #c5cfe8' }}>
+                      sx={{ fontSize: 11, fontWeight: 'bold', py: 0.5, textAlign: 'right', borderTop: '1px solid #c5cfe8' }}>
                       {fmt(balance)}
                     </TableCell>
                   </TableRow>
@@ -142,6 +163,9 @@ function Section({ title, items, total, color, asOf }) {
           <Typography variant="subtitle1" fontWeight="bold" sx={{ color }}>
             {title}
           </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'center' }}>
+            ▸ click row to view transactions
+          </Typography>
         </Box>
 
         {(!items || items.length === 0) ? (
@@ -152,8 +176,10 @@ function Section({ title, items, total, color, asOf }) {
           <AccountRow key={i} {...item} asOf={asOf} />
         ))}
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1.5, pt: 1,
-                   borderTop: `2px solid ${color}`, px: 1 }}>
+        <Box sx={{
+          display: 'flex', justifyContent: 'space-between', mt: 1.5, pt: 1,
+          borderTop: `2px solid ${color}`, px: 1
+        }}>
           <Typography fontWeight="bold">Total {title}</Typography>
           <Typography fontWeight="bold" sx={{ color }}>{fmt(total || 0)}</Typography>
         </Box>
@@ -164,25 +190,28 @@ function Section({ title, items, total, color, asOf }) {
 
 // ── Main Balance Sheet page ───────────────────────────────────────────────
 export default function BalanceSheet() {
-  const [asOf,    setAsOf]    = useState(dayjs().format('YYYY-MM-DD'));
-  const [data,    setData]    = useState(null);
+  const [asOf, setAsOf] = useState(dayjs().format('YYYY-MM-DD'));
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState('');
+  const [error, setError] = useState('');
 
   const load = async () => {
     setLoading(true); setError('');
     try {
       const res = await getBalanceSheet(asOf);
       setData(res.data);
-    } catch { setError('Failed to load balance sheet'); }
-    finally { setLoading(false); }
+    } catch {
+      setError('Failed to load balance sheet');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
 
-  const totalAssets      = data?.assets?.total           || 0;
+  const totalAssets = data?.assets?.total || 0;
   const totalLiabilities = data?.liabilities?.grandTotal || 0;
-  const balanced         = Math.abs(totalAssets - totalLiabilities) < 1;
+  const balanced = Math.abs(totalAssets - totalLiabilities) < 1;
 
   const filterItems = (items, category) =>
     (items || []).filter(a => a.category === category);
@@ -201,15 +230,25 @@ export default function BalanceSheet() {
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <TextField type="date" size="small" label="As of Date" value={asOf}
-            onChange={(e) => setAsOf(e.target.value)} InputLabelProps={{ shrink: true }} />
+          <TextField
+            type="date"
+            size="small"
+            label="As of Date"
+            value={asOf}
+            onChange={(e) => setAsOf(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+          />
           <Button variant="contained" startIcon={<Refresh />} onClick={load}>Load</Button>
           <Button variant="outlined" startIcon={<Print />} onClick={() => window.print()}>Print</Button>
         </Box>
       </Box>
 
-      {error   && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {loading && <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>}
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      )}
 
       {data && !loading && (
         <>
@@ -229,27 +268,29 @@ export default function BalanceSheet() {
             <Grid item xs={12} md={6}>
               <Typography variant="h6" fontWeight="bold" mb={1} color="#1a5276">ASSETS</Typography>
 
-              <Section title="Fixed Assets"   color="#1a5276" asOf={asOf}
+              <Section title="Fixed Assets" color="#1a5276" asOf={asOf}
                 items={filterItems(data.assets?.items, 'Fixed Asset')}
-                total={sumItems(data.assets?.items, 'Fixed Asset')} />
+                total={sumItems(data.assets?.items, 'Fixed Asset')}
+              />
 
               <Section title="Current Assets" color="#2e86ab" asOf={asOf}
                 items={filterItems(data.assets?.items, 'Current Asset')}
-                total={sumItems(data.assets?.items, 'Current Asset')} />
+                total={sumItems(data.assets?.items, 'Current Asset')}
+              />
 
-              {/* Other asset categories (Prepaid, Long-Term etc.) */}
               {(data.assets?.items || [])
-                .filter(a => !['Fixed Asset','Current Asset'].includes(a.category))
+                .filter(a => !['Fixed Asset', 'Current Asset'].includes(a.category))
                 .length > 0 && (
-                <Section title="Other Assets" color="#5d6d7e" asOf={asOf}
-                  items={(data.assets?.items || []).filter(a =>
-                    !['Fixed Asset','Current Asset'].includes(a.category))}
-                  total={(data.assets?.items || [])
-                    .filter(a => !['Fixed Asset','Current Asset'].includes(a.category))
-                    .reduce((s, i) => s + i.balance, 0)} />
-              )}
+                  <Section title="Other Assets" color="#5d6d7e" asOf={asOf}
+                    items={(data.assets?.items || []).filter(a =>
+                      !['Fixed Asset', 'Current Asset'].includes(a.category)
+                    )}
+                    total={(data.assets?.items || [])
+                      .filter(a => !['Fixed Asset', 'Current Asset'].includes(a.category))
+                      .reduce((s, i) => s + i.balance, 0)}
+                  />
+                )}
 
-              {/* Total Assets */}
               <Card sx={{ bgcolor: '#1a5276', color: 'white' }}>
                 <CardContent sx={{ py: 1.5 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -266,22 +307,23 @@ export default function BalanceSheet() {
                 LIABILITIES & EQUITY
               </Typography>
 
-              <Section title="Current Liabilities"   color="#c0392b" asOf={asOf}
+              <Section title="Current Liabilities" color="#c0392b" asOf={asOf}
                 items={filterItems(data.liabilities?.items, 'Current Liability')}
-                total={sumItems(data.liabilities?.items, 'Current Liability')} />
+                total={sumItems(data.liabilities?.items, 'Current Liability')}
+              />
 
               <Section title="Long-Term Liabilities" color="#922b21" asOf={asOf}
                 items={filterItems(data.liabilities?.items, 'Long-Term Liability')}
-                total={sumItems(data.liabilities?.items, 'Long-Term Liability')} />
+                total={sumItems(data.liabilities?.items, 'Long-Term Liability')}
+              />
 
-              {/* Owner's Equity (Capital) */}
               {data.liabilities?.equity?.items?.length > 0 && (
                 <Section title="Owner's Equity" color="#8e44ad" asOf={asOf}
                   items={data.liabilities.equity.items}
-                  total={data.liabilities.equity.total} />
+                  total={data.liabilities.equity.total}
+                />
               )}
 
-              {/* Net Profit */}
               <Card sx={{ mb: 2, borderTop: '3px solid #27ae60' }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -291,15 +333,17 @@ export default function BalanceSheet() {
                         Total Income − Total Expenses up to {dayjs(asOf).format('DD MMM YYYY')}
                       </Typography>
                     </Box>
-                    <Typography fontWeight="bold" fontSize={16}
-                      color={data.liabilities?.netProfit >= 0 ? '#27ae60' : '#e74c3c'}>
+                    <Typography
+                      fontWeight="bold"
+                      fontSize={16}
+                      color={data.liabilities?.netProfit >= 0 ? '#27ae60' : '#e74c3c'}
+                    >
                       {fmt(data.liabilities?.netProfit)}
                     </Typography>
                   </Box>
                 </CardContent>
               </Card>
 
-              {/* Total Liabilities & Equity */}
               <Card sx={{ bgcolor: '#c0392b', color: 'white' }}>
                 <CardContent sx={{ py: 1.5 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>

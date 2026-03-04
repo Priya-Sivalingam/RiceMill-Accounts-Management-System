@@ -13,7 +13,7 @@ import {
 import dayjs from 'dayjs';
 import {
   getBalanceSheet, getProfitLoss, getPendingCheques,
-  getAdvanceSummary, getDebtors, getCreditors
+  getDebtors, getCreditors
 } from '../../api';
 
 function StatCard({ title, value, subtitle, icon, color, chip }) {
@@ -56,16 +56,15 @@ export default function Dashboard() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [bs, pl, cheques, advances, debtors, creditors] = await Promise.all([
+        const [bs, pl, cheques,debtors, creditors] = await Promise.all([
           getBalanceSheet(today),
           getProfitLoss({ from: monthStart, to: today }),
           getPendingCheques(),
-          getAdvanceSummary(),
           getDebtors(today),
           getCreditors(today),
         ]);
         setData({ bs: bs.data, pl: pl.data, cheques: cheques.data,
-                  advances: advances.data, debtors: debtors.data, creditors: creditors.data });
+                 debtors: debtors.data, creditors: creditors.data });
       } catch (e) {
         setError('Failed to load dashboard data');
       } finally {
@@ -190,39 +189,6 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </Grid>
-
-        {/* Advance Summary
-        <Grid item xs={12} md={5}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography variant="h6" fontWeight="bold" mb={2}>
-                Advance Balances
-              </Typography>
-              {(data.advances || []).map((a) => (
-                <Box key={a.advanceType} sx={{
-                  display: 'flex', justifyContent: 'space-between',
-                  alignItems: 'center', py: 1.5,
-                  borderBottom: '1px solid #f0f0f0'
-                }}>
-                  <Box>
-                    <Typography variant="body2" fontWeight="bold">
-                      {a.advanceType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {a.count} advance(s)
-                    </Typography>
-                  </Box>
-                  <Typography variant="body2" fontWeight="bold" color="primary">
-                    {fmt(a.totalBalance)}
-                  </Typography>
-                </Box>
-              ))}
-              {(!data.advances || data.advances.length === 0) && (
-                <Typography color="text.secondary" variant="body2">No advance data</Typography>
-              )}
-            </CardContent>
-          </Card>
-        </Grid> */}
       </Grid>
     </Box>
   );

@@ -20,6 +20,33 @@ const PAYMENT_MODES = [
 const fmt = (n) => `Rs. ${Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 const today = dayjs().format('YYYY-MM-DD');
 
+
+const StatusChip = ({ row }) => {
+  const bal    = (row.totalAmount || 0) - (row.paidAmount || 0);
+  const cheque = row.cheque;
+  const mode   = row.paymentMode;
+  if (bal <= 0)
+    return <Chip label="✓ Paid" size="small" color="success" sx={{ fontWeight: 'bold' }} />;
+  if (mode === 'cheque' && cheque?.isPostDated && cheque?.status === 'pending')
+    return (
+      <Box>
+        <Chip label="⏳ PDC Pending" size="small" color="warning" sx={{ fontWeight: 'bold', mb: 0.2 }} />
+        <Typography variant="caption" display="block" sx={{ fontSize: 10, color: '#e67e22' }}>
+          Due: {String(cheque.chequeDate)}
+        </Typography>
+      </Box>
+    );
+  if (mode === 'cheque' && cheque?.status === 'bounced')
+    return <Chip label="⚠ Bounced" size="small" color="error" sx={{ fontWeight: 'bold' }} />;
+  if (mode === 'cheque' && cheque?.status === 'pending')
+    return <Chip label="⏳ Cheque Pending" size="small" color="warning" />;
+  if (mode === 'credit')
+    return <Chip label={'Due ' + fmt(bal)} size="small" color="error" />;
+  if (bal > 0)
+    return <Chip label={'Partial — Due ' + fmt(bal)} size="small" color="warning" />;
+  return null;
+};
+
 export default function PaddyPurchase() {
   const [suppliers, setSuppliers] = useState([]);
   const [history,   setHistory]   = useState([]);
@@ -92,15 +119,7 @@ export default function PaddyPurchase() {
       renderCell: ({ value }) => fmt(value) },
     { field: 'paidAmount',  headerName: 'Paid',        width: 120,
       renderCell: ({ value }) => <span style={{ color: '#27ae60', fontWeight: 'bold' }}>{fmt(value)}</span> },
-    { field: 'balanceDue',  headerName: 'Status',      width: 140,
-      renderCell: ({ row }) => {
-        const bal = (row.totalAmount || 0) - (row.paidAmount || 0);
-        if (bal <= 0) return <Chip label="✓ Paid" size="small" color="success" />;
-        if (row.paymentMode === 'cheque') return <Chip label="Cheque" size="small" color="warning" />;
-        if (row.paymentMode === 'credit') return <Chip label={`Due ${fmt(bal)}`} size="small" color="error" />;
-        return <span style={{ color: '#e74c3c', fontWeight: 'bold' }}>{fmt(bal)}</span>;
-      }
-    },
+    { field: 'balanceDue', headerName: 'Status', width: 165, renderCell: ({ row }) => <StatusChip row={row} /> },
     { field: 'actions', headerName: '', width: 60, sortable: false,
       renderCell: ({ row }) => (
         <PrintReceipt txnId={row.txnId} txnType="purchase" />

@@ -11,8 +11,6 @@ import { getParties, createParty, updateParty, deleteParty, getPartyLedger, getA
 const PARTY_TYPES = [
   { value: 'supplier',        label: 'Paddy Supplier' },
   { value: 'customer',        label: 'Rice Customer' },
-  { value: 'contract_client', label: 'Contract Milling Client' },
-  { value: 'transporter',     label: 'Transporter' },
 ];
 
 const fmt = (n) => `Rs. ${Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
@@ -60,10 +58,6 @@ export default function Parties() {
       partyType:          row.partyType          || 'supplier',
       phone:              row.phone              || '',
       address:            row.address            || '',
-      openingBalance:     row.openingBalance     ?? 0,
-      openingBalanceType: row.openingBalanceType || 'DR',
-      creditLimit:        row.creditLimit        ?? 0,
-      linkedAccountId:    row.linkedAccountId    || ''
     });
     setDialog({ open: true, mode: 'edit', data: row });
   };
@@ -106,10 +100,6 @@ export default function Parties() {
     }
   };
 
-  const linkedAccountOptions = accounts.filter(a =>
-    ['15', '16.1.1', '16.1.2', '16.1.3'].includes(a.accountCode)
-  );
-
   const columns = [
     { field: 'partyCode', headerName: 'Code', width: 100 },
     { field: 'partyName', headerName: 'Name', flex: 1 },
@@ -119,10 +109,6 @@ export default function Parties() {
       )
     },
     { field: 'phone', headerName: 'Phone', width: 130 },
-    { field: 'openingBalance', headerName: 'Opening Bal.', width: 150,
-      renderCell: ({ row }) => `${fmt(row.openingBalance)} ${row.openingBalanceType}` },
-    { field: 'creditLimit', headerName: 'Credit Limit', width: 130,
-      renderCell: ({ value }) => fmt(value) },
     { field: 'actions', headerName: 'Actions', width: 130, sortable: false,
       renderCell: ({ row }) => (
         <Box>
@@ -177,8 +163,6 @@ export default function Parties() {
         <Tab label="All"              value="all" />
         <Tab label="Suppliers"        value="supplier" />
         <Tab label="Customers"        value="customer" />
-        <Tab label="Contract Clients" value="contract_client" />
-        <Tab label="Transporters"     value="transporter" />
       </Tabs>
 
       <Card>
@@ -213,30 +197,7 @@ export default function Parties() {
               <TextField fullWidth label="Address" multiline rows={2} value={form.address}
                 onChange={(e) => setForm({ ...form, address: e.target.value })} />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth label="Opening Balance" type="number" value={form.openingBalance}
-                onChange={(e) => setForm({ ...form, openingBalance: parseFloat(e.target.value) || 0 })} />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth select label="Balance Type" value={form.openingBalanceType}
-                onChange={(e) => setForm({ ...form, openingBalanceType: e.target.value })}>
-                <MenuItem value="DR">Debit (DR) — they owe us</MenuItem>
-                <MenuItem value="CR">Credit (CR) — we owe them</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth label="Credit Limit" type="number" value={form.creditLimit}
-                onChange={(e) => setForm({ ...form, creditLimit: parseFloat(e.target.value) || 0 })} />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth select label="Linked Account (optional)" value={form.linkedAccountId}
-                onChange={(e) => setForm({ ...form, linkedAccountId: e.target.value })}>
-                <MenuItem value="">-- None --</MenuItem>
-                {linkedAccountOptions.map(a => (
-                  <MenuItem key={a.accountId} value={a.accountId}>{a.accountCode} — {a.accountName}</MenuItem>
-                ))}
-              </TextField>
-            </Grid>
+            
           </Grid>
         </DialogContent>
         <DialogActions>
