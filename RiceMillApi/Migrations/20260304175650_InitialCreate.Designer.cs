@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RiceMillApi.Data;
@@ -11,9 +12,11 @@ using RiceMillApi.Data;
 namespace RiceMillApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260304175650_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,7 +79,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Land",
                             AccountType = "Asset",
                             Category = "Fixed Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3198),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8930),
                             IsActive = true
                         },
                         new
@@ -86,7 +89,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Building",
                             AccountType = "Asset",
                             Category = "Fixed Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3201),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8933),
                             IsActive = true
                         },
                         new
@@ -96,7 +99,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Furniture",
                             AccountType = "Asset",
                             Category = "Fixed Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3203),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8936),
                             IsActive = true
                         },
                         new
@@ -106,7 +109,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Machinery",
                             AccountType = "Asset",
                             Category = "Fixed Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3206),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8938),
                             IsActive = true
                         },
                         new
@@ -116,7 +119,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Vehicles",
                             AccountType = "Asset",
                             Category = "Fixed Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3208),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8940),
                             IsActive = true
                         },
                         new
@@ -126,7 +129,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Purchase",
                             AccountType = "Expense",
                             Category = "Direct Cost",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3210),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8942),
                             IsActive = true
                         },
                         new
@@ -136,7 +139,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Sales",
                             AccountType = "Income",
                             Category = "Revenue",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3212),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8944),
                             IsActive = true
                         },
                         new
@@ -146,7 +149,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Other Income",
                             AccountType = "Income",
                             Category = "Other Income",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3214),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8946),
                             IsActive = true
                         },
                         new
@@ -156,7 +159,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Administrative Expenses",
                             AccountType = "Expense",
                             Category = "Indirect Expense",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3216),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8948),
                             IsActive = true
                         },
                         new
@@ -166,7 +169,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Selling & Distribution Exp",
                             AccountType = "Expense",
                             Category = "Indirect Expense",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3218),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8950),
                             IsActive = true
                         },
                         new
@@ -176,7 +179,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Financial Expense",
                             AccountType = "Expense",
                             Category = "Financial",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3220),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8952),
                             IsActive = true
                         },
                         new
@@ -186,7 +189,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "General Expense",
                             AccountType = "Expense",
                             Category = "Indirect Expense",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3221),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8954),
                             IsActive = true
                         },
                         new
@@ -196,7 +199,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Production Expense",
                             AccountType = "Expense",
                             Category = "Direct Cost",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3229),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8962),
                             IsActive = true
                         },
                         new
@@ -206,7 +209,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Debtor 1",
                             AccountType = "Asset",
                             Category = "Current Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3231),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8964),
                             IsActive = true
                         },
                         new
@@ -216,7 +219,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Debtor 2",
                             AccountType = "Asset",
                             Category = "Current Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3233),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9012),
                             IsActive = true
                         },
                         new
@@ -226,7 +229,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Debtor 3",
                             AccountType = "Asset",
                             Category = "Current Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3235),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9014),
                             IsActive = true
                         },
                         new
@@ -236,7 +239,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Debtor 4",
                             AccountType = "Asset",
                             Category = "Current Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3236),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9016),
                             IsActive = true
                         },
                         new
@@ -246,7 +249,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Debtor 5",
                             AccountType = "Asset",
                             Category = "Current Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3238),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9018),
                             IsActive = true
                         },
                         new
@@ -256,7 +259,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Debtor 6",
                             AccountType = "Asset",
                             Category = "Current Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3240),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9020),
                             IsActive = true
                         },
                         new
@@ -266,7 +269,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Debtor 7",
                             AccountType = "Asset",
                             Category = "Current Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3242),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9022),
                             IsActive = true
                         },
                         new
@@ -276,7 +279,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Debtor 8",
                             AccountType = "Asset",
                             Category = "Current Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3244),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9024),
                             IsActive = true
                         },
                         new
@@ -286,7 +289,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Debtor 9",
                             AccountType = "Asset",
                             Category = "Current Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3246),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9026),
                             IsActive = true
                         },
                         new
@@ -296,7 +299,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Paddy Creditors",
                             AccountType = "Liability",
                             Category = "Current Liability",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3247),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9028),
                             IsActive = true
                         },
                         new
@@ -306,7 +309,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Other Creditors",
                             AccountType = "Liability",
                             Category = "Current Liability",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3249),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9030),
                             IsActive = true
                         },
                         new
@@ -316,7 +319,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Financial Creditors",
                             AccountType = "Liability",
                             Category = "Current Liability",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3307),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9032),
                             IsActive = true
                         },
                         new
@@ -326,7 +329,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Bank Long-Term Loan",
                             AccountType = "Liability",
                             Category = "Long-Term Liability",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3309),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9034),
                             IsActive = true
                         },
                         new
@@ -336,7 +339,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Bank - Current Account",
                             AccountType = "Asset",
                             Category = "Current Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3311),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9035),
                             IsActive = true
                         },
                         new
@@ -346,7 +349,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Bank - Saving Account",
                             AccountType = "Asset",
                             Category = "Current Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3313),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9037),
                             IsActive = true
                         },
                         new
@@ -356,7 +359,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Salary Advance",
                             AccountType = "Asset",
                             Category = "Current Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3314),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9039),
                             IsActive = true
                         },
                         new
@@ -366,7 +369,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Paddy Purchase Advance",
                             AccountType = "Asset",
                             Category = "Current Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3316),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9041),
                             IsActive = true
                         },
                         new
@@ -376,7 +379,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Insurance",
                             AccountType = "Asset",
                             Category = "Prepaid",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3318),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9043),
                             IsActive = true
                         },
                         new
@@ -386,7 +389,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Fixed Deposit",
                             AccountType = "Asset",
                             Category = "Current Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3320),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9045),
                             IsActive = true
                         },
                         new
@@ -396,7 +399,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Lease",
                             AccountType = "Asset",
                             Category = "Long-Term",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3322),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9047),
                             IsActive = true
                         },
                         new
@@ -406,7 +409,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Miscellaneous Account",
                             AccountType = "Expense",
                             Category = "General",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3324),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9049),
                             IsActive = true
                         },
                         new
@@ -416,7 +419,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Post-Dated Cheque",
                             AccountType = "Asset",
                             Category = "Current Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3326),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9051),
                             IsActive = true
                         },
                         new
@@ -426,7 +429,7 @@ namespace RiceMillApi.Migrations
                             AccountName = "Cash",
                             AccountType = "Asset",
                             Category = "Current Asset",
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 298, DateTimeKind.Utc).AddTicks(3328),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9052),
                             IsActive = true
                         });
                 });
@@ -750,10 +753,10 @@ namespace RiceMillApi.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2026, 3, 4, 19, 12, 14, 454, DateTimeKind.Utc).AddTicks(26),
+                            CreatedAt = new DateTime(2026, 3, 4, 17, 56, 49, 656, DateTimeKind.Utc).AddTicks(4431),
                             FullName = "System Administrator",
                             IsActive = true,
-                            PasswordHash = "$2a$11$/c15iMfGnbBHI6fTOdGrOuXVKTJhYr9x0coJFdGO4R1rgRXYzdjSu",
+                            PasswordHash = "$2a$11$8qEFXMNtPPiOhH55F.VQFOXVb1ELWkSQtYdZNMCPMd3y6Zar3NGC6",
                             Role = "admin",
                             Username = "admin"
                         });

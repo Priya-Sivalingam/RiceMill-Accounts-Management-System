@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RiceMillApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b7bae15b067154978c5909f357b11dc30f6f3a35")]
 [assembly: System.Reflection.AssemblyProductAttribute("RiceMillApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RiceMillApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

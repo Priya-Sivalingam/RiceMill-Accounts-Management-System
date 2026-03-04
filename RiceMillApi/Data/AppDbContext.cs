@@ -14,8 +14,6 @@ public class AppDbContext : DbContext
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<TransactionEntry> TransactionEntries => Set<TransactionEntry>();
     public DbSet<Cheque> Cheques => Set<Cheque>();
-    public DbSet<Advance> Advances => Set<Advance>();
-    public DbSet<ContractMilling> ContractMillings => Set<ContractMilling>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -145,49 +143,6 @@ public class AppDbContext : DbContext
             e.HasOne(te => te.Party)
              .WithMany(p => p.TransactionEntries)
              .HasForeignKey(te => te.PartyId)
-             .OnDelete(DeleteBehavior.Restrict);
-        });
-
-        // ── Advance ───────────────────────────────────────────────
-        modelBuilder.Entity<Advance>(e =>
-        {
-            e.HasKey(a => a.AdvanceId);
-            e.Property(a => a.Amount).HasPrecision(15, 2);
-            e.Property(a => a.AdjustedAmount).HasPrecision(15, 2);
-            e.Property(a => a.AdvanceType).HasMaxLength(30).IsRequired();
-            e.Ignore(a => a.Balance);
-
-            e.HasOne(a => a.Party)
-             .WithMany(p => p.Advances)
-             .HasForeignKey(a => a.PartyId)
-             .OnDelete(DeleteBehavior.Restrict);
-
-            e.HasOne(a => a.Transaction)
-             .WithMany()
-             .HasForeignKey(a => a.TxnId)
-             .OnDelete(DeleteBehavior.Restrict);
-        });
-
-        // ── ContractMilling ───────────────────────────────────────
-        modelBuilder.Entity<ContractMilling>(e =>
-        {
-            e.HasKey(m => m.MillingId);
-            e.HasIndex(m => m.MillingNumber).IsUnique();
-            e.Property(m => m.MillingNumber).HasMaxLength(30).IsRequired();
-            e.Property(m => m.PaddyQtyKg).HasPrecision(10, 2);
-            e.Property(m => m.RiceQtyKg).HasPrecision(10, 2);
-            e.Property(m => m.BranQtyKg).HasPrecision(10, 2);
-            e.Property(m => m.MillingCharge).HasPrecision(10, 2);
-            e.Property(m => m.PaymentMode).HasMaxLength(20).HasDefaultValue("cash");
-
-            e.HasOne(m => m.Party)
-             .WithMany(p => p.ContractMillings)
-             .HasForeignKey(m => m.PartyId)
-             .OnDelete(DeleteBehavior.Restrict);
-
-            e.HasOne(m => m.Transaction)
-             .WithOne(t => t.ContractMilling)
-             .HasForeignKey<ContractMilling>(m => m.TxnId)
              .OnDelete(DeleteBehavior.Restrict);
         });
 

@@ -72,7 +72,11 @@ public class ChequesController : ControllerBase
         });
     }
 
-    /// <summary>Mark a cheque as cleared — moves PDC from account 23 to Bank 17.1</summary>
+    /// <summary>
+    /// Clear a PDC cheque — CASH BASIS
+    /// Received (sale):   DR Bank(17.1)/CR PDC(23) + DR Suspense(25)/CR Sales(7)
+    /// Issued (purchase): DR PDC(23)/CR Bank(17.1) + DR Purchase(6)/CR Suspense(25)
+    /// </summary>
     [HttpPost("{id}/clear")]
     public async Task<IActionResult> Clear(int id, [FromBody] ClearChequeRequest req)
     {
@@ -84,53 +88,51 @@ public class ChequesController : ControllerBase
         if (cheque.Status != "pending")
             return BadRequest(new { message = $"Cheque is already {cheque.Status}" });
 
+        var fiscalYear = await _db.FiscalYears.FirstOrDefaultAsync(f => !f.IsClosed);
+        if (fiscalYear == null) return BadRequest(new { message = "No active fiscal year found" });
+
         cheque.Status      = "cleared";
         cheque.ClearedDate = req.ClearedDate;
 
-        // If post-dated cheque: move from PDC account (23) to Bank (17.1)
-        if (cheque.IsPostDated)
-        {
-            var fiscalYear = await _db.FiscalYears.FirstOrDefaultAsync(f => !f.IsClosed);
-            if (fiscalYear != null)
-            {
-                var pdcAccount  = await _db.Accounts.FirstAsync(a => a.AccountCode == "23");
-                var bankAccount = await _db.Accounts.FirstAsync(a => a.AccountCode == "17.1");
-                var userId = GetUserId();
+        var userId    = GetUserId();
+        var count     = await _db.Transactions.CountAsync() + 1;
+        var narration = $"PDC Cleared — {cheque.ChequeNumber} ({cheque.BankName})";
+        var bankAcc  = await _db.Accounts.FirstAsync(a => a.AccountCode == "17.1");
+        var pdcAcc   = await _db.Accounts.FirstAsync(a => a.AccountCode == "23");
+        var suspAcc  = await _db.Accounts.FirstAsync(a => a.AccountCode == "25");
 
-                var count = await _db.Transactions.CountAsync() + 1;
-                var clearingTxn = new Transaction
-                {
-                    TxnNumber    = $"PDC-{DateTime.Today.Year}-{count:D4}",
-                    TxnDate      = req.ClearedDate,
-                    TxnType      = "journal",
-                    Narration    = $"PDC Cleared - Cheque {cheque.ChequeNumber} from {cheque.BankName}",
-                    TotalAmount  = cheque.Amount,
-                    PaidAmount   = cheque.Amount,
-                    PaymentMode  = "cheque",
-                    FiscalYearId = fiscalYear.FiscalYearId,
-                    CreatedBy    = userId
-                };
+        var ct = new Transaction {
+            TxnNumber = $"PDC-{DateTime.Today.Year}-{count:D4}", TxnDate = req.ClearedDate,
+            TxnType = "journal", Narration = narration, TotalAmount = cheque.Amount,
+            PaidAmount = cheque.Amount, PaymentMode = "cheque", PartyId = cheque.PartyId,
+            FiscalYearId = fiscalYear.FiscalYearId, CreatedBy = userId
+        };
 
-                // DR Bank 17.1, CR PDC Account 23
-                clearingTxn.Entries.Add(new TransactionEntry
-                {
-                    AccountId = bankAccount.AccountId,
-                    DrAmount  = cheque.Amount,
-                    Narration = clearingTxn.Narration
-                });
-                clearingTxn.Entries.Add(new TransactionEntry
-                {
-                    AccountId = pdcAccount.AccountId,
-                    CrAmount  = cheque.Amount,
-                    Narration = clearingTxn.Narration
-                });
-
-                _db.Transactions.Add(clearingTxn);
-            }
+        if (cheque.ChequeType == "received") {
+            // SALE PDC CLEARED — income recognised only now (cash basis)
+            var salesAcc = await _db.Accounts.FirstAsync(a => a.AccountCode == "7");
+            ct.Entries.Add(new TransactionEntry { AccountId = bankAcc.AccountId, DrAmount = cheque.Amount, Narration = "Cash received in bank" });
+            ct.Entries.Add(new TransactionEntry { AccountId = pdcAcc.AccountId,  CrAmount = cheque.Amount, Narration = "PDC cleared from account 23" });
+            ct.Entries.Add(new TransactionEntry { AccountId = suspAcc.AccountId, DrAmount = cheque.Amount, Narration = "PDC Sale Suspense cleared" });
+            ct.Entries.Add(new TransactionEntry { AccountId = salesAcc.AccountId, PartyId = cheque.PartyId, CrAmount = cheque.Amount, Narration = $"Sales income recognised — {cheque.ChequeNumber}" });
+        } else {
+            // PURCHASE PDC CLEARED — expense recognised only now (cash basis)
+            var purchAcc = await _db.Accounts.FirstAsync(a => a.AccountCode == "6");
+            ct.Entries.Add(new TransactionEntry { AccountId = pdcAcc.AccountId,  DrAmount = cheque.Amount, Narration = $"PDC cheque {cheque.ChequeNumber} paid" });
+            ct.Entries.Add(new TransactionEntry { AccountId = bankAcc.AccountId, CrAmount = cheque.Amount, Narration = "Cash paid from bank" });
+            ct.Entries.Add(new TransactionEntry { AccountId = purchAcc.AccountId, PartyId = cheque.PartyId, DrAmount = cheque.Amount, Narration = $"Purchase expense recognised — {cheque.ChequeNumber}" });
+            ct.Entries.Add(new TransactionEntry { AccountId = suspAcc.AccountId, CrAmount = cheque.Amount, Narration = "PDC Purchase Suspense cleared" });
         }
 
+        _db.Transactions.Add(ct);
+        var orig = cheque.Transaction ?? await _db.Transactions.FirstOrDefaultAsync(t => t.ChequeId == cheque.ChequeId);
+        if (orig != null) orig.PaidAmount = orig.TotalAmount;
         await _db.SaveChangesAsync();
-        return Ok(new { message = $"Cheque {cheque.ChequeNumber} marked as cleared" });
+
+        return Ok(new {
+            message    = cheque.ChequeType == "received" ? $"Sales income now in P&L — {cheque.ChequeNumber}" : $"Purchase expense now in P&L — {cheque.ChequeNumber}",
+            journalRef = ct.TxnNumber, amount = cheque.Amount
+        });
     }
 
     /// <summary>Mark a cheque as bounced</summary>

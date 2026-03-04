@@ -1,3 +1,3 @@
 ﻿<Project>
-  <Import Project="..\build\RiceMillApi.props" />
+  <Import Project="../build/RiceMillApi.props" />
 </Project>

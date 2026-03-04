@@ -31,6 +31,7 @@ public class TransactionsController : ControllerBase
             .Where(t => !t.IsCancelled)
             .Include(t => t.Party)
             .Include(t => t.FiscalYear)
+            .Include(t => t.Cheque)
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(type))        query = query.Where(t => t.TxnType == type);
@@ -48,7 +49,16 @@ public class TransactionsController : ControllerBase
                 Party = t.Party != null ? t.Party.PartyName : "-",
                 t.Narration, t.TotalAmount, t.PaidAmount,
                 BalanceDue = t.TotalAmount - t.PaidAmount,
-                t.PaymentMode, t.IsCancelled
+                t.PaymentMode, t.IsCancelled,
+                Cheque = t.Cheque == null ? null : new {
+                    t.Cheque.ChequeId,
+                    t.Cheque.ChequeNumber,
+                    t.Cheque.BankName,
+                    t.Cheque.ChequeDate,
+                    t.Cheque.IsPostDated,
+                    t.Cheque.Status,
+                    t.Cheque.ClearedDate
+                }
             })
             .ToListAsync();
 
@@ -168,7 +178,8 @@ public class TransactionsController : ControllerBase
             Reference    = req.Reference ?? purchaseCheque?.ChequeNumber,
             Narration    = req.Narration ?? (isPurchasePostDated ? $"Paddy Purchase — PDC Cheque (due {req.ChequeDetails?.ChequeDate})" : "Paddy Purchase"),
             TotalAmount  = req.Amount,
-            PaidAmount   = (req.PaymentMode == "credit") ? 0 : req.Amount,
+            // PDC cheque = unpaid until cleared; credit = unpaid; cash/bank = fully paid
+            PaidAmount   = (req.PaymentMode == "credit" || isPurchasePostDated) ? 0 : req.Amount,
             PaymentMode  = req.PaymentMode,
             ChequeId     = purchaseCheque?.ChequeId,
             FiscalYearId = fiscalYear.FiscalYearId,
@@ -256,7 +267,8 @@ public class TransactionsController : ControllerBase
             Reference    = req.Reference ?? cheque?.ChequeNumber,
             Narration    = req.Narration ?? (isPostDated ? $"Rice Sale — PDC Cheque (due {req.ChequeDetails?.ChequeDate})" : "Rice Sale"),
             TotalAmount  = req.Amount,
-            PaidAmount   = req.PaymentMode == "credit" ? 0 : req.Amount,
+            // PDC cheque = unpaid until cleared; credit = unpaid; cash/bank = fully paid
+            PaidAmount   = (req.PaymentMode == "credit" || isPostDated) ? 0 : req.Amount,
             PaymentMode  = req.PaymentMode,
             ChequeId     = cheque?.ChequeId,
             FiscalYearId = fiscalYear.FiscalYearId,
@@ -533,87 +545,7 @@ public class TransactionsController : ControllerBase
             new { txn.TxnId, txn.TxnNumber, message = "Payment recorded successfully" });
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // POST: Contract Milling
-    // DR: Cash (24) OR Debtor (15.x)
-    // CR: Other Income (8)
-    // ─────────────────────────────────────────────────────────────
-    /// <summary>Record a contract milling job</summary>
-    [HttpPost("contract-milling")]
-    public async Task<IActionResult> ContractMilling([FromBody] ContractMillingRequest req)
-    {
-        var fiscalYear = await GetActiveFiscalYear();
-        if (fiscalYear == null) return BadRequest(new { message = "No active fiscal year found" });
-
-        var userId = GetUserId();
-        var txnNumber = await GenerateNumber("MILL");
-        var millingNumber = await GenerateNumber("MJOB");
-
-        var drAccountCode = req.PaymentMode switch
-        {
-            "bank_transfer" => "17.1",
-            "credit"        => req.DebtorAccountCode ?? "15.1",
-            _               => "24"  // Cash
-        };
-
-        var drAccount = await _db.Accounts.FirstAsync(a => a.AccountCode == drAccountCode);
-        var crAccount = await _db.Accounts.FirstAsync(a => a.AccountCode == "8"); // Other Income
-
-        var txn = new Transaction
-        {
-            TxnNumber    = txnNumber,
-            TxnDate      = req.MillingDate,
-            TxnType      = "contract_milling",
-            PartyId      = req.PartyId,
-            Narration    = req.Narration ?? "Contract Milling Charge",
-            TotalAmount  = req.MillingCharge,
-            PaidAmount   = req.PaymentMode == "credit" ? 0 : req.MillingCharge,
-            PaymentMode  = req.PaymentMode,
-            FiscalYearId = fiscalYear.FiscalYearId,
-            CreatedBy    = userId
-        };
-
-        txn.Entries.Add(new TransactionEntry
-        {
-            AccountId = drAccount.AccountId,
-            PartyId   = req.PaymentMode == "credit" ? req.PartyId : null,
-            DrAmount  = req.MillingCharge,
-            Narration = txn.Narration
-        });
-        txn.Entries.Add(new TransactionEntry
-        {
-            AccountId = crAccount.AccountId,
-            PartyId   = req.PartyId,
-            CrAmount  = req.MillingCharge,
-            Narration = txn.Narration
-        });
-
-        _db.Transactions.Add(txn);
-        await _db.SaveChangesAsync();
-
-        // Save milling job details
-        var millingJob = new RiceMillApi.Models.ContractMilling
-        {
-            MillingNumber = millingNumber,
-            MillingDate   = req.MillingDate,
-            PartyId       = req.PartyId,
-            PaddyQtyKg    = req.PaddyQtyKg,
-            RiceQtyKg     = req.RiceQtyKg,
-            BranQtyKg     = req.BranQtyKg,
-            MillingCharge = req.MillingCharge,
-            PaymentMode   = req.PaymentMode,
-            TxnId         = txn.TxnId,
-            Remarks       = req.Narration
-        };
-
-        _db.ContractMillings.Add(millingJob);
-        await _db.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetById), new { id = txn.TxnId },
-            new { txn.TxnId, txn.TxnNumber, millingJob.MillingNumber,
-                  message = "Contract milling recorded successfully" });
-    }
-
+    
     // ─────────────────────────────────────────────────────────────
     // POST: Journal Entry (manual double entry)
     // DR/CR: Any accounts
@@ -792,17 +724,6 @@ public record ChequeDetails(
     DateOnly ChequeDate
 );
 
-public record ContractMillingRequest(
-    DateOnly MillingDate,
-    int PartyId,
-    decimal PaddyQtyKg,
-    decimal RiceQtyKg,
-    decimal BranQtyKg,
-    decimal MillingCharge,
-    string PaymentMode,           // cash / credit / bank_transfer
-    string? DebtorAccountCode,   // required if credit
-    string? Narration
-);
 
 public record JournalRequest(
     DateOnly TxnDate,

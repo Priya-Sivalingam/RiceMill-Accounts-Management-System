@@ -181,71 +181,6 @@ namespace RiceMillApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Advances",
-                columns: table => new
-                {
-                    AdvanceId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    PartyId = table.Column<int>(type: "integer", nullable: false),
-                    AdvanceType = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
-                    Amount = table.Column<decimal>(type: "numeric(15,2)", precision: 15, scale: 2, nullable: false),
-                    AdvanceDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    AdjustedAmount = table.Column<decimal>(type: "numeric(15,2)", precision: 15, scale: 2, nullable: false),
-                    TxnId = table.Column<int>(type: "integer", nullable: true),
-                    Remarks = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Advances", x => x.AdvanceId);
-                    table.ForeignKey(
-                        name: "FK_Advances_Parties_PartyId",
-                        column: x => x.PartyId,
-                        principalTable: "Parties",
-                        principalColumn: "PartyId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Advances_Transactions_TxnId",
-                        column: x => x.TxnId,
-                        principalTable: "Transactions",
-                        principalColumn: "TxnId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ContractMillings",
-                columns: table => new
-                {
-                    MillingId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    MillingNumber = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
-                    MillingDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    PartyId = table.Column<int>(type: "integer", nullable: false),
-                    PaddyQtyKg = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
-                    RiceQtyKg = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
-                    BranQtyKg = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
-                    MillingCharge = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
-                    PaymentMode = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "cash"),
-                    TxnId = table.Column<int>(type: "integer", nullable: true),
-                    Remarks = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ContractMillings", x => x.MillingId);
-                    table.ForeignKey(
-                        name: "FK_ContractMillings_Parties_PartyId",
-                        column: x => x.PartyId,
-                        principalTable: "Parties",
-                        principalColumn: "PartyId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ContractMillings_Transactions_TxnId",
-                        column: x => x.TxnId,
-                        principalTable: "Transactions",
-                        principalColumn: "TxnId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "TransactionEntries",
                 columns: table => new
                 {
@@ -286,42 +221,32 @@ namespace RiceMillApi.Migrations
                 columns: new[] { "AccountId", "AccountCode", "AccountName", "AccountType", "Category", "CreatedAt", "IsActive", "ParentAccountId" },
                 values: new object[,]
                 {
-                    { 1, "1", "Land", "Asset", "Fixed Asset", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9935), true, null },
-                    { 2, "2", "Building", "Asset", "Fixed Asset", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9939), true, null },
-                    { 3, "3", "Furniture", "Asset", "Fixed Asset", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9942), true, null },
-                    { 4, "4", "Machinery", "Asset", "Fixed Asset", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9944), true, null },
-                    { 5, "5", "Vehicles", "Asset", "Fixed Asset", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9946), true, null },
-                    { 6, "6", "Purchase", "Expense", "Direct Cost", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9948), true, null },
-                    { 7, "7", "Sales", "Income", "Revenue", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9950), true, null },
-                    { 8, "8", "Other Income", "Income", "Other Income", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9952), true, null },
-                    { 9, "10", "Administrative Expenses", "Expense", "Indirect Expense", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9954), true, null },
-                    { 10, "11", "Selling & Distribution Exp", "Expense", "Indirect Expense", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9956), true, null },
-                    { 11, "12", "Financial Expense", "Expense", "Financial", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9958), true, null },
-                    { 12, "13", "General Expense", "Expense", "Indirect Expense", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9960), true, null },
-                    { 13, "14", "Production Expense", "Expense", "Direct Cost", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9968), true, null },
-                    { 14, "15.1", "Debtor 1", "Asset", "Current Asset", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9969), true, null },
-                    { 15, "15.2", "Debtor 2", "Asset", "Current Asset", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9971), true, null },
-                    { 16, "15.3", "Debtor 3", "Asset", "Current Asset", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9973), true, null },
-                    { 17, "15.4", "Debtor 4", "Asset", "Current Asset", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9975), true, null },
-                    { 18, "15.5", "Debtor 5", "Asset", "Current Asset", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9977), true, null },
-                    { 19, "15.6", "Debtor 6", "Asset", "Current Asset", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9980), true, null },
-                    { 20, "15.7", "Debtor 7", "Asset", "Current Asset", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9981), true, null },
-                    { 21, "15.8", "Debtor 8", "Asset", "Current Asset", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9983), true, null },
-                    { 22, "15.9", "Debtor 9", "Asset", "Current Asset", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9985), true, null },
-                    { 23, "16.1.1", "Paddy Creditors", "Liability", "Current Liability", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9987), true, null },
-                    { 24, "16.1.2", "Other Creditors", "Liability", "Current Liability", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9988), true, null },
-                    { 25, "16.1.3", "Financial Creditors", "Liability", "Current Liability", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9990), true, null },
-                    { 26, "16.2", "Bank Long-Term Loan", "Liability", "Long-Term Liability", new DateTime(2026, 2, 24, 19, 2, 48, 898, DateTimeKind.Utc).AddTicks(9992), true, null },
-                    { 27, "17.1", "Bank - Current Account", "Asset", "Current Asset", new DateTime(2026, 2, 24, 19, 2, 48, 899, DateTimeKind.Utc).AddTicks(32), true, null },
-                    { 28, "17.2", "Bank - Saving Account", "Asset", "Current Asset", new DateTime(2026, 2, 24, 19, 2, 48, 899, DateTimeKind.Utc).AddTicks(34), true, null },
-                    { 29, "18.1", "Salary Advance", "Asset", "Current Asset", new DateTime(2026, 2, 24, 19, 2, 48, 899, DateTimeKind.Utc).AddTicks(36), true, null },
-                    { 30, "18.2", "Paddy Purchase Advance", "Asset", "Current Asset", new DateTime(2026, 2, 24, 19, 2, 48, 899, DateTimeKind.Utc).AddTicks(37), true, null },
-                    { 31, "19", "Insurance", "Asset", "Prepaid", new DateTime(2026, 2, 24, 19, 2, 48, 899, DateTimeKind.Utc).AddTicks(39), true, null },
-                    { 32, "20", "Fixed Deposit", "Asset", "Current Asset", new DateTime(2026, 2, 24, 19, 2, 48, 899, DateTimeKind.Utc).AddTicks(41), true, null },
-                    { 33, "21", "Lease", "Asset", "Long-Term", new DateTime(2026, 2, 24, 19, 2, 48, 899, DateTimeKind.Utc).AddTicks(43), true, null },
-                    { 34, "22", "Miscellaneous Account", "Expense", "General", new DateTime(2026, 2, 24, 19, 2, 48, 899, DateTimeKind.Utc).AddTicks(44), true, null },
-                    { 35, "23", "Post-Dated Cheque", "Asset", "Current Asset", new DateTime(2026, 2, 24, 19, 2, 48, 899, DateTimeKind.Utc).AddTicks(46), true, null },
-                    { 36, "24", "Cash", "Asset", "Current Asset", new DateTime(2026, 2, 24, 19, 2, 48, 899, DateTimeKind.Utc).AddTicks(48), true, null }
+                    { 1, "1", "Land", "Asset", "Fixed Asset", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8930), true, null },
+                    { 2, "2", "Building", "Asset", "Fixed Asset", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8933), true, null },
+                    { 3, "3", "Furniture", "Asset", "Fixed Asset", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8936), true, null },
+                    { 4, "4", "Machinery", "Asset", "Fixed Asset", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8938), true, null },
+                    { 5, "5", "Vehicles", "Asset", "Fixed Asset", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8940), true, null },
+                    { 6, "6", "Purchase", "Expense", "Direct Cost", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8942), true, null },
+                    { 7, "7", "Sales", "Income", "Revenue", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8944), true, null },
+                    { 8, "8", "Other Income", "Income", "Other Income", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8946), true, null },
+                    { 9, "10", "Administrative Expenses", "Expense", "Indirect Expense", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8948), true, null },
+                    { 10, "11", "Selling & Distribution Exp", "Expense", "Indirect Expense", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8950), true, null },
+                    { 11, "12", "Financial Expense", "Expense", "Financial", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8952), true, null },
+                    { 12, "13", "General Expense", "Expense", "Indirect Expense", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8954), true, null },
+                    { 13, "14", "Production Expense", "Expense", "Direct Cost", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8962), true, null },
+                    { 14, "15", "Debtor", "Asset", "Current Asset", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(8964), true, null },
+                    { 15, "16.1", "Paddy Creditors", "Liability", "Current Liability", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9028), true, null },
+                    { 16, "16.2", "Bank Long-Term Loan", "Liability", "Long-Term Liability", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9034), true, null },
+                    { 17, "17.1", "Bank - Current Account", "Asset", "Current Asset", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9035), true, null },
+                    { 18, "17.2", "Bank - Saving Account", "Asset", "Current Asset", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9037), true, null },
+                    { 19, "18.1", "Salary Advance", "Asset", "Current Asset", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9039), true, null },
+                    { 20, "18.2", "Paddy Purchase Advance", "Asset", "Current Asset", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9041), true, null },
+                    { 21, "19", "Insurance", "Asset", "Prepaid", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9043), true, null },
+                    { 22, "20", "Fixed Deposit", "Asset", "Current Asset", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9045), true, null },
+                    { 23, "21", "Lease", "Asset", "Long-Term", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9047), true, null },
+                    { 24, "22", "Miscellaneous Account", "Expense", "General", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9049), true, null },
+                    { 25, "23", "Post-Dated Cheque", "Asset", "Current Asset", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9051), true, null },
+                    { 26, "24", "Cash", "Asset", "Current Asset", new DateTime(2026, 3, 4, 17, 56, 49, 500, DateTimeKind.Utc).AddTicks(9052), true, null }
                 });
 
             migrationBuilder.InsertData(
@@ -332,7 +257,7 @@ namespace RiceMillApi.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "UserId", "CreatedAt", "FullName", "IsActive", "PasswordHash", "Role", "Username" },
-                values: new object[] { 1, new DateTime(2026, 2, 24, 19, 2, 49, 53, DateTimeKind.Utc).AddTicks(581), "System Administrator", true, "$2a$11$w378D4UVyqgeZrRtI5yIBuDovGkKLtFFYEFMM9JUhfQqtqUjUvXbm", "admin", "admin" });
+                values: new object[] { 1, new DateTime(2026, 3, 4, 17, 56, 49, 656, DateTimeKind.Utc).AddTicks(4431), "System Administrator", true, "$2a$11$8qEFXMNtPPiOhH55F.VQFOXVb1ELWkSQtYdZNMCPMd3y6Zar3NGC6", "admin", "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Accounts_AccountCode",
@@ -346,36 +271,9 @@ namespace RiceMillApi.Migrations
                 column: "ParentAccountId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Advances_PartyId",
-                table: "Advances",
-                column: "PartyId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Advances_TxnId",
-                table: "Advances",
-                column: "TxnId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Cheques_PartyId",
                 table: "Cheques",
                 column: "PartyId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ContractMillings_MillingNumber",
-                table: "ContractMillings",
-                column: "MillingNumber",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ContractMillings_PartyId",
-                table: "ContractMillings",
-                column: "PartyId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ContractMillings_TxnId",
-                table: "ContractMillings",
-                column: "TxnId",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Parties_LinkedAccountId",
@@ -440,12 +338,6 @@ namespace RiceMillApi.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Advances");
-
-            migrationBuilder.DropTable(
-                name: "ContractMillings");
-
             migrationBuilder.DropTable(
                 name: "TransactionEntries");
 

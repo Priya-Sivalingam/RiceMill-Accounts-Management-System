@@ -7,7 +7,7 @@ namespace RiceMillApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-// [Authorize]
+[Authorize]
 public class AccountsController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -41,23 +41,47 @@ public class AccountsController : ControllerBase
 
         var date = asOf ?? DateOnly.FromDateTime(DateTime.Today);
 
-        var entries = await _db.TransactionEntries
+        // Load entries including ALL sibling entries of each transaction
+        // so we can build "Cash DR / Capital CR" style journal descriptions
+        var rawEntries = await _db.TransactionEntries
             .Where(e => e.AccountId == id
                      && e.Transaction.TxnDate <= date
                      && !e.Transaction.IsCancelled)
-            .Include(e => e.Transaction).ThenInclude(t => t.Party)
+            .Include(e => e.Transaction)
+                .ThenInclude(t => t.Party)
+            .Include(e => e.Transaction)
+                .ThenInclude(t => t.Entries)
+                    .ThenInclude(te => te.Account)
             .OrderBy(e => e.Transaction.TxnDate)
             .ThenBy(e => e.EntryId)
-            .Select(e => new {
+            .ToListAsync();
+
+        var entries = rawEntries.Select(e =>
+        {
+            var allEntries = e.Transaction.Entries.ToList();
+            var drAccounts = allEntries
+                .Where(x => x.DrAmount > 0)
+                .Select(x => x.Account?.AccountName ?? "?")
+                .Distinct();
+            var crAccounts = allEntries
+                .Where(x => x.CrAmount > 0)
+                .Select(x => x.Account?.AccountName ?? "?")
+                .Distinct();
+
+            // e.g.  "Cash DR / Capital CR"
+            var journalDesc = string.Join(", ", drAccounts) + " DR / " + string.Join(", ", crAccounts) + " CR";
+
+            return new {
                 e.Transaction.TxnDate,
                 e.Transaction.TxnNumber,
                 e.Transaction.TxnType,
-                Party    = e.Transaction.Party != null ? e.Transaction.Party.PartyName : "-",
-                Narration = e.Transaction.Narration,
+                Party       = e.Transaction.Party != null ? e.Transaction.Party.PartyName : "-",
+                Narration   = e.Transaction.Narration,
+                JournalDesc = journalDesc,
                 e.DrAmount,
                 e.CrAmount
-            })
-            .ToListAsync();
+            };
+        }).ToList();
 
         var dr      = entries.Sum(e => e.DrAmount);
         var cr      = entries.Sum(e => e.CrAmount);
@@ -75,4 +99,5 @@ public class AccountsController : ControllerBase
             Entries     = entries
         });
     }
+
 }

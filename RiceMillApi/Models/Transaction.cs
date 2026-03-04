@@ -33,5 +33,4 @@ public class Transaction
     public FiscalYear FiscalYear { get; set; } = null!;
     public User CreatedByUser { get; set; } = null!;
     public ICollection<TransactionEntry> Entries { get; set; } = new List<TransactionEntry>();
-    public ContractMilling? ContractMilling { get; set; }
 }

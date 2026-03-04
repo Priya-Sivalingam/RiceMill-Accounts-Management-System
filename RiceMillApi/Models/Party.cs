@@ -23,6 +23,4 @@ public class Party
     public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     public ICollection<TransactionEntry> TransactionEntries { get; set; } = new List<TransactionEntry>();
     public ICollection<Cheque> Cheques { get; set; } = new List<Cheque>();
-    public ICollection<Advance> Advances { get; set; } = new List<Advance>();
-    public ICollection<ContractMilling> ContractMillings { get; set; } = new List<ContractMilling>();
 }
