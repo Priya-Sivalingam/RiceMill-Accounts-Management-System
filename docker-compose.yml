@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+
+  db:
+    image: postgres:15
+    container_name: ricemill_db
+    environment:
+      POSTGRES_DB: RiceMillDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ./RiceMillApi
+      dockerfile: Dockerfile
+    container_name: ricemill_api
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=RiceMillDb;Username=postgres;Password=postgres
+      - JwtSettings__SecretKey=RiceMillSecretKey2024!ChangeThisInProduction
+      - JwtSettings__Issuer=RiceMillApi
+      - JwtSettings__Audience=RiceMillClient
+      - JwtSettings__ExpiryHours=8
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build:
+      context: ./rice-mill-ui
+      dockerfile: Dockerfile
+    container_name: ricemill_frontend
+    depends_on:
+      - api
+    ports:
+      - "3000:80"
+
+volumes:
+  pgdata:
