@@ -15,9 +15,7 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   api:
-    build:
-      context: ./RiceMillApi
-      dockerfile: Dockerfile
+    image: $priyasivalingam/ricemill-api:latest
     container_name: ricemill_api
     depends_on:
       - db
@@ -31,9 +29,7 @@ services:
       - "5000:5000"
 
   frontend:
-    build:
-      context: ./rice-mill-ui
-      dockerfile: Dockerfile
+    image: $priyasivalingam/ricemill-frontend:latest
     container_name: ricemill_frontend
     depends_on:
       - api
