@@ -50,7 +50,7 @@ public class AuthController : ControllerBase
     // ─────────────────────────────────────────
     /// <summary>Get all users (Admin only)</summary>
     [HttpGet("users")]
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAll()
     {
         var users = await _db.Users
