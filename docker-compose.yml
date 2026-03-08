@@ -26,7 +26,7 @@ services:
       - JwtSettings__Audience=RiceMillClient
       - JwtSettings__ExpiryHours=8
     ports:
-      - "5000:5000"
+      - "5001:5000"
 
   frontend:
     image: $priyasivalingam/ricemill-frontend:latest
