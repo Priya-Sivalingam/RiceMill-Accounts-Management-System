@@ -62,7 +62,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
-        policy.WithOrigins("http://localhost:3000", "http://localhost:4200","http://13.62.230.54:3000")
+        policy.WithOrigins("http://localhost:3000", "http://localhost:4200","http://13.62.230.54:3000","http://ricemillacc.ddns.net:3000")
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
